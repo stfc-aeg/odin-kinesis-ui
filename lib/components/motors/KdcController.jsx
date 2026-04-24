@@ -21,7 +21,7 @@ function KdcController(props) {
     <div className="controller">
       <TitleCard title={
         <Row>
-          <Col xs={6}>KDC101 Controller: {name}</Col>
+          <Col xs={6}>KDC101 Controller: <strong>{name}</strong></Col>
           <Col xs="auto">
             <EndPointButton
               endpoint={kinesisEndPoint}

@@ -23,7 +23,7 @@ function Motor(props)
         {!controllers ? (
           <Row> No controllers found</Row>
         ) : (
-          <Row>
+          <Row className="gy-3">
             {Object.entries(controllers).map(([controllerName, controllerData]) => {
               const ControllerComponent = componentMap[controllerData.type.toLowerCase()];
               if (ControllerComponent) {
