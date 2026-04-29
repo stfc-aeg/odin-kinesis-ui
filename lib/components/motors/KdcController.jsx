@@ -7,13 +7,15 @@ import InputGroup from 'react-bootstrap/InputGroup';
 import FloatingLabel from 'react-bootstrap/FloatingLabel';
 
 import { TitleCard, WithEndpoint } from 'odin-react';
-import { floatingInputStyle } from '../../styles/styles.js';
+import { floatingInputStyle, floatingLabelStyle } from '../../utils.js';
+import { Lock, Unlock } from 'react-bootstrap-icons';
 
 const EndPointFormControl = WithEndpoint(Form.Control);
 const EndPointButton = WithEndpoint(Button);
 
 function KdcController(props) {
   const {name, motor, kinesisEndPoint} = props;
+  const [locked, setLocked] = useState(false);
 
   const dataPath = `controllers/${name}/motor`;
 
@@ -22,6 +24,15 @@ function KdcController(props) {
       <TitleCard title={
         <Row>
           <Col xs={6}>KDC101 Controller: <strong>{name}</strong></Col>
+          <Col xs={3} className="d-flex align-items-center">
+            <Button
+              size="sm"
+              variant={locked ? 'secondary' : 'outline-secondary'}
+              onClick={() => setLocked((prev) => !prev)}
+            >
+              {locked ? <><Lock className="me-1" /> Locked</> : <><Unlock className="me-1" /> Unlocked</>}
+            </Button>
+          </Col>
           <Col xs="auto">
             <EndPointButton
               endpoint={kinesisEndPoint}
@@ -60,6 +71,7 @@ function KdcController(props) {
                       endpoint={kinesisEndPoint}
                       fullpath={dataPath + "/position/set_target_pos"}
                       style={floatingInputStyle}
+                      disabled={locked}
                     />
                 </FloatingLabel>
               </InputGroup>
@@ -92,6 +104,7 @@ function KdcController(props) {
                   fullpath={dataPath+"/position/home"}
                   event_type="click"
                   value={true}
+                  disabled={locked}
                   className="w-100"
                 >
                    Home
@@ -123,6 +136,7 @@ function KdcController(props) {
                   fullpath={dataPath + "/jog/step"}
                   event_type="click"
                   value={true}
+                  disabled={locked}
                   className="w-100"
                 >
                   {kinesisEndPoint.data?.controllers[name]?.increase_label || "Step increase"}
@@ -134,6 +148,7 @@ function KdcController(props) {
                   fullpath={dataPath + "/jog/step"}
                   event_type="click"
                   value={false}
+                  disabled={locked}
                   className="w-100"
                 >
                   {kinesisEndPoint.data?.controllers[name]?.decrease_label || "Step decrease"}
