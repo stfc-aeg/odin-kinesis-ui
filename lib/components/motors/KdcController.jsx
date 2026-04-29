@@ -7,7 +7,7 @@ import InputGroup from 'react-bootstrap/InputGroup';
 import FloatingLabel from 'react-bootstrap/FloatingLabel';
 
 import { TitleCard, WithEndpoint } from 'odin-react';
-import { floatingInputStyle, floatingLabelStyle } from '../../utils.js';
+import { floatingInputStyle } from '../../styles/styles.js';
 import { Lock, Unlock } from 'react-bootstrap-icons';
 
 const EndPointFormControl = WithEndpoint(Form.Control);
