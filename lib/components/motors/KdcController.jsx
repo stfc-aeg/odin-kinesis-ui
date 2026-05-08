@@ -38,9 +38,9 @@ function KdcController(props) {
               endpoint={kinesisEndPoint}
               value={true}
               fullpath={`controllers/${name}/connected`}
-              variant={kinesisEndPoint.data?.controllers[name].connected ? "primary" : "danger"}
-              disabled={kinesisEndPoint.data?.controllers[name].connected}>
-              {kinesisEndPoint.data?.controllers[name].connected ? 'Connected' : 'Reconnect'}
+              variant={kinesisEndPoint.data?.controllers[name]?.connected ? "primary" : "danger"}
+              disabled={kinesisEndPoint.data?.controllers[name]?.connected}>
+              {kinesisEndPoint.data?.controllers[name]?.connected ? 'Connected' : 'Reconnect'}
             </EndPointButton>
           </Col>
         </Row>}
@@ -61,7 +61,7 @@ function KdcController(props) {
                         border: '1px solid lightblue',
                         backgroundColor: '#e0f7ff',
                       }}
-                      value={motor.position.current_pos}
+                      value={motor?.position?.current_pos}
                     />
                 </FloatingLabel>
                 <InputGroup.Text>Position</InputGroup.Text>
