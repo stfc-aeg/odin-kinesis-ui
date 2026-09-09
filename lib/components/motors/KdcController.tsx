@@ -1,19 +1,22 @@
-import React, {useState} from 'react';
-import Row from 'react-bootstrap/Row';
-import Col from 'react-bootstrap/Col';
-import Button from 'react-bootstrap/Button';
-import Form from 'react-bootstrap/Form';
-import InputGroup from 'react-bootstrap/InputGroup';
-import FloatingLabel from 'react-bootstrap/FloatingLabel';
+import { Row, Col, Button, Form, InputGroup, FloatingLabel } from 'react-bootstrap';
+import { useState } from 'react';
 
-import { TitleCard, WithEndpoint } from 'odin-react';
+import { TitleCard, EndpointButton, EndpointInput, type AdapterEndpoint, type ParamPath } from '@dssg/odin-react';
 import { floatingInputStyle } from '../../styles/styles.js';
 import { Lock, Unlock } from 'react-bootstrap-icons';
+import type { KinesisEndpoint } from '../EndpointTypes';
 
-const EndPointFormControl = WithEndpoint(Form.Control);
-const EndPointButton = WithEndpoint(Button);
+interface KdcControllerProps {
+  name: string;
+  motor: KinesisEndpoint['controllers'][string]['motor'];
+  kinesisEndPoint: AdapterEndpoint<KinesisEndpoint>;
+}
 
-function KdcController(props) {
+// This helper pairs with the dataPath below to cooperate with type assertions
+// TS cannot verify that `controllers/${name}/motor` is a valid path so we assert it here instead
+const kinesisPath = (path: string): ParamPath<KinesisEndpoint> => path as ParamPath<KinesisEndpoint>;
+
+function KdcController(props: KdcControllerProps) {
   const {name, motor, kinesisEndPoint} = props;
   const [locked, setLocked] = useState(false);
 
@@ -24,25 +27,30 @@ function KdcController(props) {
       <TitleCard title={
         <Row>
           <Col xs={6}>KDC101 Controller: <strong>{name}</strong></Col>
-          <Col xs={3} className="d-flex align-items-center">
-            <Button
-              size="sm"
-              variant={locked ? 'secondary' : 'outline-secondary'}
-              onClick={() => setLocked((prev) => !prev)}
-            >
-              {locked ? <><Lock className="me-1" /> Locked</> : <><Unlock className="me-1" /> Unlocked</>}
-            </Button>
+          <Col>
+            <Row>
+              <Col className="d-flex align-items-center">
+                <Button
+                  size="sm"
+                  variant={locked ? 'secondary' : 'outline-secondary'}
+                  onClick={() => setLocked((prev) => !prev)}
+                >
+                  {locked ? <><Lock className="me-1" /> Locked</> : <><Unlock className="me-1" /> Unlocked</>}
+                </Button>
+              </Col>
+              <Col>
+                <EndpointButton
+                  endpoint={kinesisEndPoint}
+                  value={true}
+                  fullpath={kinesisPath(`controllers/${name}/connected`)}
+                  variant={kinesisEndPoint.data?.controllers[name]?.connected ? "primary" : "danger"}
+                  disabled={kinesisEndPoint.data?.controllers[name]?.connected}>
+                  {kinesisEndPoint.data?.controllers[name]?.connected ? 'Connected' : 'Reconnect'}
+                </EndpointButton>
+              </Col>
+            </Row>
           </Col>
-          <Col xs="auto">
-            <EndPointButton
-              endpoint={kinesisEndPoint}
-              value={true}
-              fullpath={`controllers/${name}/connected`}
-              variant={kinesisEndPoint.data?.controllers[name]?.connected ? "primary" : "danger"}
-              disabled={kinesisEndPoint.data?.controllers[name]?.connected}>
-              {kinesisEndPoint.data?.controllers[name]?.connected ? 'Connected' : 'Reconnect'}
-            </EndPointButton>
-          </Col>
+
         </Row>}
       >
         <Row>
@@ -67,9 +75,9 @@ function KdcController(props) {
                 <InputGroup.Text>Position</InputGroup.Text>
                 <FloatingLabel
                   label="Target">
-                    <EndPointFormControl
+                    <EndpointInput
                       endpoint={kinesisEndPoint}
-                      fullpath={dataPath + "/position/set_target_pos"}
+                      fullpath={kinesisPath(`${dataPath}/position/set_target_pos`)}
                       style={floatingInputStyle}
                       disabled={locked}
                     />
@@ -80,18 +88,18 @@ function KdcController(props) {
               <InputGroup>
                 <FloatingLabel
                   label="Upper">
-                    <EndPointFormControl
+                    <EndpointInput
                       endpoint={kinesisEndPoint}
-                      fullpath={dataPath + "/limits/upper_limit"}
+                      fullpath={kinesisPath(dataPath + "/limits/upper_limit")}
                       style={floatingInputStyle}
                     />
                 </FloatingLabel>
                 <InputGroup.Text>Limits</InputGroup.Text>
                 <FloatingLabel
                   label="Lower">
-                    <EndPointFormControl
+                    <EndpointInput
                       endpoint={kinesisEndPoint}
-                      fullpath={dataPath + "/limits/lower_limit"}
+                      fullpath={kinesisPath(dataPath + "/limits/lower_limit")}
                       style={floatingInputStyle}
                     />
                 </FloatingLabel>
@@ -99,28 +107,26 @@ function KdcController(props) {
             </Row>
             <Row className='mt-3'>
               <Col>
-                <EndPointButton
+                <EndpointButton
                   endpoint={kinesisEndPoint}
-                  fullpath={dataPath+"/position/home"}
-                  event_type="click"
+                  fullpath={kinesisPath(dataPath+"/position/home")}
                   value={true}
                   disabled={locked}
                   className="w-100"
                 >
                    Home
-                </EndPointButton>
+                </EndpointButton>
               </Col>
               <Col>
-                <EndPointButton
+                <EndpointButton
                   endpoint={kinesisEndPoint}
-                  fullpath={dataPath+"/position/stop"}
-                  event_type="click"
+                  fullpath={kinesisPath(dataPath+"/position/stop")}
                   variant="danger"
                   value={true}
                   className="w-100"
                 >
                   Stop movement
-                </EndPointButton>
+                </EndpointButton>
               </Col>
             </Row>
           </Col>
@@ -131,54 +137,52 @@ function KdcController(props) {
             </Row>
             <Row className="mt-2">
               <Col>
-                <EndPointButton
+                <EndpointButton
                   endpoint={kinesisEndPoint}
-                  fullpath={dataPath + "/jog/step"}
-                  event_type="click"
+                  fullpath={kinesisPath(dataPath + "/jog/step")}
                   value={true}
                   disabled={locked}
                   className="w-100"
                 >
                   {kinesisEndPoint.data?.controllers[name]?.increase_label || "Step increase"}
-                </EndPointButton>
+                </EndpointButton>
               </Col>
               <Col>
-                <EndPointButton
+                <EndpointButton
                   endpoint={kinesisEndPoint}
-                  fullpath={dataPath + "/jog/step"}
-                  event_type="click"
+                  fullpath={kinesisPath(dataPath + "/jog/step")}
                   value={false}
                   disabled={locked}
                   className="w-100"
                 >
                   {kinesisEndPoint.data?.controllers[name]?.decrease_label || "Step decrease"}
-                </EndPointButton>
+                </EndpointButton>
               </Col>
             </Row>
             <Row className="mt-3">
               <InputGroup>
                 <InputGroup.Text>Step Size</InputGroup.Text>
-                <EndPointFormControl
+                <EndpointInput
                   endpoint={kinesisEndPoint}
-                  fullpath={dataPath + "/jog/step_size"}
+                  fullpath={kinesisPath(dataPath + "/jog/step_size")}
                 />
               </InputGroup>
             </Row>
             <Row className="mt-2">
               <InputGroup>
                 <InputGroup.Text>Max vel.</InputGroup.Text>
-                <EndPointFormControl
+                <EndpointInput
                   endpoint={kinesisEndPoint}
-                  fullpath={dataPath + "/jog/max_vel"}
+                  fullpath={kinesisPath(dataPath + "/jog/max_vel")}
                 />
               </InputGroup>
             </Row>
             <Row className="mt-2">
               <InputGroup>
                 <InputGroup.Text>Accel.</InputGroup.Text>
-                <EndPointFormControl
+                <EndpointInput
                   endpoint={kinesisEndPoint}
-                  fullpath={dataPath + "/jog/accel"}
+                  fullpath={kinesisPath(dataPath + "/jog/accel")}
                 />
               </InputGroup>
             </Row>

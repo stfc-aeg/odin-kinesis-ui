@@ -1,20 +1,21 @@
-import Container from 'react-bootstrap/Container';
-import Row from 'react-bootstrap/Row';
-import Col from 'react-bootstrap/Col';
-
-import React from "react";
-import { useAdapterEndpoint } from 'odin-react';
+import { Container, Row, Col } from 'react-bootstrap';
+import { useAdapterEndpoint } from '@dssg/odin-react';
 
 import KdcController from './KdcController';
+import type { KinesisEndpoint } from '../EndpointTypes';
 
-function Motor(props)
+interface MotorProps {
+  endpoint_url: string;
+}
+
+function Motor(props: MotorProps)
 {
     const {endpoint_url} = props;
 
-    const kinesisEndPoint = useAdapterEndpoint('kinesis', endpoint_url, 500);
+    const kinesisEndPoint = useAdapterEndpoint<KinesisEndpoint>('kinesis', endpoint_url, 500);
     const controllers = kinesisEndPoint?.data?.controllers;
-  
-    const componentMap = {
+
+    const componentMap: Record<string, typeof KdcController> = {
       'kdc101': KdcController
     };
 
@@ -28,7 +29,7 @@ function Motor(props)
               const ControllerComponent = componentMap[controllerData.type.toLowerCase()];
               if (ControllerComponent) {
               return (
-                <Col sm={12} md={6} key={controllerName}>
+                <Col sm={12} xl={6} key={controllerName}>
                   <ControllerComponent
                     key={controllerName}
                     name={controllerName}
