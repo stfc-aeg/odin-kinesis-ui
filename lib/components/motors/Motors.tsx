@@ -20,7 +20,7 @@ function Motor(props: MotorProps)
     };
 
     return (
-      <Container fluid="lg" className="mt-2">
+      <Container fluid className="mt-2">
         {!controllers ? (
           <Row> No controllers found</Row>
         ) : (
